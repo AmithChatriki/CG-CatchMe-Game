@@ -36,58 +36,6 @@ void myinit() {
     glMatrixMode(GL_MODELVIEW);
 }
 
-// Callback function for drawing the start menu
-void drawStartMenu() {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    // Draw a title label
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glRasterPos2i(250, 450);
-    std::string title = "Catch Me Game";
-    for (const char& c : title) {
-        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
-    }
-
-    // Draw a "Start" button
-    glColor3f(0.0f, 1.0f, 0.0f);
-    glRecti(175, 250, 325, 300);
-    glColor3f(0.0f, 0.0f, 0.0f);
-    glRasterPos2i(250, 275);
-    std::string start_label = "Start";
-    for (const char& c : start_label) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
-    }
-
-    // Draw a "Quit" button
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glRecti(175, 150, 325, 200);
-    glColor3f(0.0f, 0.0f, 0.0f);
-    glRasterPos2i(250, 175);
-    std::string quit_label = "Quit";
-    for (const char& c : quit_label) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
-    }
-
-    glFlush();
-}
-
-// Callback function for handling mouse clicks
-void mouseClick(int button, int state, int x, int y) {
-    // Check if the "Start" button was clicked
-    if (x >= 175 && x <= 325 && y >= 250 && y <= 300 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        // Start the game
-        // ...
-    }
-    // Check if the "Quit" button was clicked
-    if (x >= 175 && x <= 325 && y >= 150 && y <= 200 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        // Quit the game
-        exit(0);
-    }
-}
-
-
-
 bool checkIfInside(int x1, int y1, int x2, int y2, int x, int y)
 {
     if (x > x1 and x < x2 and y > y1 and y < y2)
@@ -218,9 +166,6 @@ int main(int argc, char** argv) {
     glutInitWindowSize(500, 500);
     glutCreateWindow("CATCH ME!");
     myinit();
-
-    glutDisplayFunc(drawStartMenu);
-    glutMouseFunc(mouseClick);
     
     glutTimerFunc(0, timerFunc, 0);
 
