@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <string>
 #include <cstring>
+#include <GLFW/glfw3.h>
 #include <GL/glut.h>
+
+#pragma warning(disable : 4996)
 
 // Define the polygon vertices
 GLdouble p1 = rand() % 500 + 1;
@@ -10,6 +13,18 @@ GLdouble x1[] = { p1, p2 };
 GLdouble x2[] = { p1+50, p2 };
 GLdouble x3[] = { p1+50, p2+50 };
 GLdouble x4[] = { p1, p2+50 };
+GLint direction = 1;
+
+GLdouble speed = 5;
+GLboolean movingRight = true;
+GLboolean movingTop = false;
+
+GLint score = 0;
+GLint chancesLeft = 20;
+
+GLboolean check = false;
+GLint x, y;
+GLint blink = 0;
 
 // Regenerate a new Cube at a new position 
 void generateNewCube() {
@@ -24,10 +39,9 @@ void generateNewCube() {
     x3[1] = p2+50;
     x4[0] = p1;
     x4[1] = p2+50;
-}
 
-GLint score = 0;
-GLint chancesLeft = 20;
+    direction = rand() % 2 + 1;
+}
 
 // Set up the projection and modelview matrices
 void myinit() {
@@ -43,9 +57,6 @@ bool checkIfInside(int x1, int y1, int x2, int y2, int x, int y) {
     return false;
 }
 
-bool check = false;
-int x, y;
-
 void mouse(int button, int state, int mx, int my) {
 
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
@@ -55,8 +66,12 @@ void mouse(int button, int state, int mx, int my) {
         y = 500 - my;
         printf("%d, %d\n", x, y);
         if (checkIfInside(x1[0], x1[1], x3[0], x3[1], x, y)) {
+
             score++;
             printf("Catched!!\n");
+            if (score % 10 == 0) {
+                speed += 1;
+            }
             generateNewCube();
         }
         else {
@@ -71,13 +86,8 @@ void mouse(int button, int state, int mx, int my) {
 }
 
 // Set up a timer to control the movement speed
-GLdouble speed = 5;
-GLint direction = 1;
-GLboolean movingRight = true;
-GLboolean movingTop = false;
-
 void timerFunc(int value) {
-    if (!direction) {
+    if (direction==1) {
         if (movingRight) {
             //Right Direction
             x1[0] += speed;
@@ -133,6 +143,7 @@ void timerFunc(int value) {
 }
 
 void dispFunc() {
+
     glClearColor(0.65f, 0.45f, 0.45f, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -165,8 +176,6 @@ void dispFunc() {
             glutBitmapCharacter(GLUT_BITMAP_9_BY_15, c);
         }
     }
-
-    
 
     glColor3f(1, 1, 1);
     glBegin(GL_POLYGON);
@@ -202,6 +211,7 @@ void mouseClick(int button, int state, int x, int y) {
 
     // Check if the "Start" button was clicked
     if (x >= 175 && x <= 325 && y >= 200 && y <= 250 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+
         printf("Clicked: %d, %d\n", x, y);
 
         int m1 = glutCreateMenu(menu);
@@ -217,6 +227,7 @@ void mouseClick(int button, int state, int x, int y) {
         glutTimerFunc(0, timerFunc, 0);
         glutPostRedisplay();
     }
+    
     // Check if the "Quit" button was clicked
     if (x >= 175 && x <= 325 && y >= 300 && y <= 350 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         exit(0);
@@ -224,11 +235,10 @@ void mouseClick(int button, int state, int x, int y) {
 }
 
 void timerFuncStartPage(int value) {
+
     glutPostRedisplay();
     glutTimerFunc(500, timerFuncStartPage, 0);
 }
-
-int blink = 0;
 
 void drawStartMenu() {
 
@@ -254,7 +264,7 @@ void drawStartMenu() {
     blink++;
     
 
-    // Draw a "Start" button
+    // "Start" button
     glColor3f(0.30f, 0.81f, 0.40f);
     glRecti(175, 250, 325, 300);
     glColor3f(0.0f, 0.0f, 0.0f);
@@ -264,7 +274,7 @@ void drawStartMenu() {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
     }
 
-    // Draw a "Quit" button
+    // "Quit" button
     glColor3f(0.18f, 0.559f, 0.81f);
     glRecti(175, 150, 325, 200);
     glColor3f(0.0f, 0.0f, 0.0f);
@@ -279,12 +289,32 @@ void drawStartMenu() {
     glutSwapBuffers();
 }
 
+void toggleGlutWindowMaximizeBox(char* WindowTitle)
+{
+    long dwStyle;
+    HWND hwndGlut;
+
+    wchar_t wtext[20];
+    mbstowcs(wtext, WindowTitle, strlen(WindowTitle) + 1);//Plus null
+
+    LPCWSTR WindowName = wtext;
+    hwndGlut = FindWindow(NULL, WindowName);
+
+    dwStyle = GetWindowLong(hwndGlut, GWL_STYLE);
+    dwStyle ^= WS_MAXIMIZEBOX;
+    SetWindowLong(hwndGlut, GWL_STYLE, dwStyle);
+}
+
 int main(int argc, char** argv) {
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
     glutInitWindowSize(500, 500);
-    glutCreateWindow("CATCH ME!");
+
+    char WindowTitle[] = "CATCH ME";
+    glutCreateWindow(WindowTitle);
+    toggleGlutWindowMaximizeBox(WindowTitle);
+
     myinit();
     
     glutDisplayFunc(drawStartMenu);
@@ -295,5 +325,3 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-
-
