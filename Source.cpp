@@ -159,6 +159,55 @@ void dispFunc() {
     glFlush();
 }
 
+void mouseClick(int button, int state, int x, int y) {
+    // Check if the "Start" button was clicked
+    if (x >= 175 && x <= 325 && y >= 200 && y <= 250 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        printf("Clicked: %d, %d\n", x, y);
+        glutDisplayFunc(dispFunc);
+        glutTimerFunc(0, timerFunc, 0);
+        glutPostRedisplay();
+    }
+    // Check if the "Quit" button was clicked
+    if (x >= 175 && x <= 325 && y >= 300 && y <= 350 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        exit(0);
+    }
+}
+
+void drawStartMenu() {
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Draw a title label
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glRasterPos2i(180, 450);
+    std::string title = "Catch Me Game";
+    for (const char& c : title) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+    }
+
+    // Draw a "Start" button
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glRecti(175, 250, 325, 300);
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glRasterPos2i(225, 270);
+    std::string start_label = "Start";
+    for (const char& c : start_label) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+    }
+
+    // Draw a "Quit" button
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glRecti(175, 150, 325, 200);
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glRasterPos2i(225, 170);
+    std::string quit_label = "Quit";
+    for (const char& c : quit_label) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+    }
+
+    glFlush();
+}
+
 int main(int argc, char** argv) {
     
     glutInit(&argc, argv);
@@ -167,9 +216,9 @@ int main(int argc, char** argv) {
     glutCreateWindow("CATCH ME!");
     myinit();
     
-    glutTimerFunc(0, timerFunc, 0);
+    glutDisplayFunc(drawStartMenu);
+    glutMouseFunc(mouseClick);
 
-    glutDisplayFunc(dispFunc);
     glutMainLoop();
 
     return 0;
