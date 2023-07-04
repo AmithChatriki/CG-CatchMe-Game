@@ -1,7 +1,7 @@
 # CG-Project
 
-<img src="https://github.com/AmithChatriki/CG-CatchMe-Game/assets/96742369/3dcd76b3-37f5-4204-a470-92d4b63bbdbf"  width="100" height="100">
-
-<img src="https://github.com/AmithChatriki/CG-CatchMe-Game/assets/96742369/e6736e23-56ad-4806-9457-2fed31d6ef5e"  width="100" height="100">
-
-<img src="https://github.com/AmithChatriki/CG-CatchMe-Game/assets/96742369/de70c18b-deb7-4bf5-a6e1-5002ab9d14bc"  width="100" height="100">
+<img src="https://github.com/AmithChatriki/CG-CatchMe-Game/assets/96742369/3dcd76b3-37f5-4204-a470-92d4b63bbdbf"  width="200" height="200">
+<break></break>
+<img src="https://github.com/AmithChatriki/CG-CatchMe-Game/assets/96742369/e6736e23-56ad-4806-9457-2fed31d6ef5e"  width="200" height="200">
+<break></break>
+<img src="https://github.com/AmithChatriki/CG-CatchMe-Game/assets/96742369/de70c18b-deb7-4bf5-a6e1-5002ab9d14bc"  width="200" height="200">
