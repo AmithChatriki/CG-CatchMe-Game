@@ -1,23 +1,25 @@
 #include <stdio.h>
 #include <string>
 #include <cstring>
+#include <fstream>
 #include <GLFW/glfw3.h>
 #include <GL/glut.h>
 
 #pragma warning(disable : 4996)
 
 // Define the polygon vertices
-GLdouble p1 = rand() % 500 + 1;
-GLdouble p2 = rand() % 500 + 1;
+GLdouble p1 = rand() % 700 + 1;
+GLdouble p2 = rand() % 700 + 1;
 GLdouble x1[] = { p1, p2 };
-GLdouble x2[] = { p1+50, p2 };
-GLdouble x3[] = { p1+50, p2+50 };
-GLdouble x4[] = { p1, p2+50 };
+GLdouble x2[] = { p1 + 150, p2 };
+GLdouble x3[] = { p1 + 150, p2 + 150 };
+GLdouble x4[] = { p1, p2 + 150 };
 GLint direction = 1;
 
 GLdouble speed = 5;
 GLboolean movingRight = true;
 GLboolean movingTop = false;
+GLint cubeSize = 150;
 
 GLint score = 0;
 GLint chancesLeft = 20;
@@ -29,16 +31,17 @@ GLint blink = 0;
 // Regenerate a new Cube at a new position 
 void generateNewCube() {
 
-    p1 = rand() % 500 + 1;
-    p2 = rand() % 500 + 1;
+    cubeSize -= 2;
+    p1 = rand() % 700 + 1;
+    p2 = rand() % 700 + 1;
     x1[0] = p1;
     x1[1] = p2;
-    x2[0] = p1+50;
+    x2[0] = p1 + cubeSize;
     x2[1] = p2;
-    x3[0] = p1+50;
-    x3[1] = p2+50;
+    x3[0] = p1 + cubeSize;
+    x3[1] = p2 + cubeSize;
     x4[0] = p1;
-    x4[1] = p2+50;
+    x4[1] = p2 + cubeSize;
 
     direction = rand() % 2 + 1;
 }
@@ -47,7 +50,7 @@ void generateNewCube() {
 void myinit() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0, 500, 0, 500);
+    gluOrtho2D(0, 700, 0, 700);
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -63,11 +66,36 @@ void mouse(int button, int state, int mx, int my) {
 
         check = true;
         x = mx;
-        y = 500 - my;
+        y = 700 - my;
+
+        GLint highScore;
+        std::ifstream file("data.txt");
+        if (file.is_open()) {
+            file >> highScore;
+            file.close();
+        }
+        else {
+            printf("Failed to open the file.\n");
+            return;
+        }
+
         printf("%d, %d\n", x, y);
         if (checkIfInside(x1[0], x1[1], x3[0], x3[1], x, y)) {
 
             score++;
+            if (score > highScore) {
+                highScore = score;
+                std::ofstream outFile("data.txt");
+                if (outFile.is_open()) {
+                    outFile << highScore;
+                    outFile.close();
+                    printf("Value updated and stored successfully.\n");
+                }
+                else {
+                    printf("Failed to open the file.\n");
+                    return;
+                }
+            }
             printf("Catched!!\n");
             if (score % 10 == 0) {
                 speed += 1;
@@ -87,7 +115,7 @@ void mouse(int button, int state, int mx, int my) {
 
 // Set up a timer to control the movement speed
 void timerFunc(int value) {
-    if (direction==1) {
+    if (direction == 1) {
         if (movingRight) {
             //Right Direction
             x1[0] += speed;
@@ -120,7 +148,7 @@ void timerFunc(int value) {
         }
     }
 
-    if (x1[0] > 500) {
+    if (x1[0] > 700) {
         movingRight = false;
         generateNewCube();
     }
@@ -128,7 +156,7 @@ void timerFunc(int value) {
         movingRight = true;
         generateNewCube();
     }
-    if (x2[1] > 500) {
+    if (x2[1] > 700) {
         movingTop = false;
         generateNewCube();
     }
@@ -136,7 +164,7 @@ void timerFunc(int value) {
         movingTop = true;
         generateNewCube();
     }
-    
+
     glutPostRedisplay();
     glutMouseFunc(mouse);
     glutTimerFunc(30, timerFunc, 0);
@@ -148,29 +176,54 @@ void dispFunc() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     glColor3f(1.0f, 1.0f, 1.0f);
-    glRasterPos2i(410, 480);
+    glRasterPos2i(610, 680);
     const char* text = "Score: ";
     for (const char* c = text; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *c);
     }
 
     glColor3f(1.0f, 1.0f, 1.0f);
-    glRasterPos2i(467, 479);
+    glRasterPos2i(667, 679);
     std::string s = std::to_string(score);
     for (const char& c : s) {
         glutBitmapCharacter(GLUT_BITMAP_9_BY_15, c);
     }
 
+    GLint highScore;
+    std::ifstream file("data.txt");
+    if (file.is_open()) {
+        file >> highScore;
+        file.close();
+    }
+    else {
+        printf("Failed to open the file.\n");
+        return;
+    }
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glRasterPos2i(285, 680);
+    const char* text2 = "High Score: ";
+    for (const char* c = text2; *c != '\0'; c++) {
+        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *c);
+    }
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glRasterPos2i(390, 679);
+    std::string s1 = std::to_string(highScore);
+    for (const char& c : s1) {
+        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, c);
+    }
+
     if (chancesLeft <= 5) {
         glColor3f(1.0f, 1.0f, 1.0f);
-        glRasterPos2i(10, 480);
+        glRasterPos2i(10, 680);
         const char* text = "Chances Left: ";
         for (const char* c = text; *c != '\0'; c++) {
             glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *c);
         }
 
         glColor3f(1.0f, 1.0f, 1.0f);
-        glRasterPos2i(129, 479);
+        glRasterPos2i(129, 679);
         std::string s = std::to_string(chancesLeft);
         for (const char& c : s) {
             glutBitmapCharacter(GLUT_BITMAP_9_BY_15, c);
@@ -210,7 +263,7 @@ void menu(int option) {
 void mouseClick(int button, int state, int x, int y) {
 
     // Check if the "Start" button was clicked
-    if (x >= 175 && x <= 325 && y >= 200 && y <= 250 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+    if (x >= 275 && x <= 425 && y >= 300 && y <= 350 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
 
         printf("Clicked: %d, %d\n", x, y);
 
@@ -227,9 +280,9 @@ void mouseClick(int button, int state, int x, int y) {
         glutTimerFunc(0, timerFunc, 0);
         glutPostRedisplay();
     }
-    
+
     // Check if the "Quit" button was clicked
-    if (x >= 175 && x <= 325 && y >= 300 && y <= 350 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+    if (x >= 275 && x <= 425 && y >= 400 && y <= 450 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         exit(0);
     }
 }
@@ -242,12 +295,26 @@ void timerFuncStartPage(int value) {
 
 void drawStartMenu() {
 
-    glClearColor(0.185f, 0.243f, 0.252f, 0.0f); 
+    glClearColor(0.185f, 0.243f, 0.252f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    //College Heading
+    glColor3f(0.655f, 0.646f, 0.491f);
+    glRasterPos2i(160, 650);
+    std::string title2 = "RNS INSTITUTE OF TECHNOLOGY";
+    for (const char& c : title2) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+    }
+    glColor3f(0.655f, 0.646f, 0.491f);
+    glRasterPos2i(190, 600);
+    std::string title3 = "Computer Graphics Mini Project";
+    for (const char& c : title3) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+    }
 
     // Draw a title label
     glColor3f(0.655f, 0.646f, 0.491f);
-    glRasterPos2i(160, 450);
+    glRasterPos2i(260, 500);
     std::string title = "CATCH ME GAME";
     for (const char& c : title) {
         glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
@@ -255,20 +322,20 @@ void drawStartMenu() {
 
     if (blink % 2 == 0) {
         glColor3f(0.955f, 0.346f, 0.391f);
-        glRasterPos2i(100, 420);
+        glRasterPos2i(200, 450);
         std::string title2 = "You have 20 Chances to miss the cube";
         for (const char& c : title2) {
             glutBitmapCharacter(GLUT_BITMAP_9_BY_15, c);
         }
     }
     blink++;
-    
+
 
     // "Start" button
     glColor3f(0.30f, 0.81f, 0.40f);
-    glRecti(175, 250, 325, 300);
+    glRecti(275, 350, 425, 400);
     glColor3f(0.0f, 0.0f, 0.0f);
-    glRasterPos2i(225, 270);
+    glRasterPos2i(325, 370);
     std::string start_label = "Start";
     for (const char& c : start_label) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
@@ -276,12 +343,32 @@ void drawStartMenu() {
 
     // "Quit" button
     glColor3f(0.18f, 0.559f, 0.81f);
-    glRecti(175, 150, 325, 200);
+    glRecti(275, 250, 425, 300);
     glColor3f(0.0f, 0.0f, 0.0f);
-    glRasterPos2i(225, 170);
+    glRasterPos2i(325, 270);
     std::string quit_label = "Quit";
     for (const char& c : quit_label) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+    }
+
+    //Students details
+    glColor3f(0.955f, 0.346f, 0.291f);
+    glRasterPos2i(290, 150);
+    std::string title4 = "Submitted by: ";
+    for (const char& c : title4) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+    }
+    glColor3f(0.855f, 0.846f, 0.991f);
+    glRasterPos2i(190, 100);
+    std::string title5 = "1RN20CS036 CHATRAKI AMITH";
+    for (const char& c : title5) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+    }
+    glColor3f(0.855f, 0.846f, 0.991f);
+    glRasterPos2i(190, 70);
+    std::string title6 = "1RN20CS023 ANURAG N";
+    for (const char& c : title6) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
     }
 
     glutWireTeapot(1);
@@ -306,17 +393,18 @@ void toggleGlutWindowMaximizeBox(char* WindowTitle)
 }
 
 int main(int argc, char** argv) {
-    
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
-    glutInitWindowSize(500, 500);
+    glutInitWindowSize(700, 700);
+    glutInitWindowPosition(350, 50);
 
     char WindowTitle[] = "CATCH ME";
     glutCreateWindow(WindowTitle);
     toggleGlutWindowMaximizeBox(WindowTitle);
 
     myinit();
-    
+
     glutDisplayFunc(drawStartMenu);
     glutMouseFunc(mouseClick);
     glutTimerFunc(0, timerFuncStartPage, 0);
